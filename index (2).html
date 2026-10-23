@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGROLINK – Prototipo de Baja Fidelidad | Cumaral, Meta</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', monospace; background: #e8e8e8; color: #222; }
+
+  /* WIREFRAME PALETTE */
+  :root {
+    --wire-bg: #f0f0f0;
+    --wire-surface: #ffffff;
+    --wire-border: #888;
+    --wire-dark: #333;
+    --wire-mid: #999;
+    --wire-light: #ccc;
+    --wire-accent: #555;
+    --wire-placeholder: #ddd;
+    --wire-text: #222;
+    --wire-muted: #777;
+    --wire-btn: #444;
+    --wire-btn-outline: #888;
+  }
+
+  /* LAYOUT */
+  .app { max-width: 420px; margin: 0 auto; background: var(--wire-bg); min-height: 100vh; position: relative; }
+
+  /* SCREENS */
+  .screen { display: none; padding: 0; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--wire-dark);
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #000;
+  }
+  .topbar-logo { font-size: 18px; font-weight: bold; letter-spacing: 2px; }
+  .topbar-back { cursor: pointer; font-size: 13px; background: none; border: 1px solid #aaa; color: #fff; padding: 4px 10px; border-radius: 3px; }
+  .topbar-icon { font-size: 20px; cursor: pointer; }
+  .badge { background: #fff; color: #000; border-radius: 50%; padding: 1px 6px; font-size: 11px; font-weight: bold; margin-left: 4px; }
+
+  /* CONTENT */
+  .content { padding: 16px; flex: 1; }
+
+  /* WIREFRAME ELEMENTS */
+  .wire-img { background: var(--wire-placeholder); border: 2px dashed var(--wire-border); display: flex; align-items: center; justify-content: center; color: var(--wire-muted); font-size: 12px; text-align: center; border-radius: 4px; }
+  .wire-input { width: 100%; border: 2px solid var(--wire-border); background: #fff; padding: 10px 12px; font-family: inherit; font-size: 14px; border-radius: 4px; margin-bottom: 10px; outline: none; color: var(--wire-dark); }
+  .wire-input::placeholder { color: var(--wire-mid); }
+  .wire-btn { width: 100%; background: var(--wire-btn); color: #fff; border: 2px solid #222; padding: 12px; font-family: inherit; font-size: 14px; font-weight: bold; letter-spacing: 1px; cursor: pointer; border-radius: 4px; margin-bottom: 8px; text-transform: uppercase; }
+  .wire-btn-outline { background: #fff; color: var(--wire-dark); border: 2px solid var(--wire-btn-outline); }
+  .wire-btn-sm { padding: 7px 14px; font-size: 12px; width: auto; }
+  .wire-label { font-size: 12px; color: var(--wire-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .wire-divider { border: none; border-top: 2px dashed var(--wire-light); margin: 14px 0; }
+  .wire-card { background: var(--wire-surface); border: 2px solid var(--wire-border); border-radius: 4px; padding: 12px; margin-bottom: 12px; }
+  .wire-tag { display: inline-block; background: var(--wire-light); border: 1px solid var(--wire-border); padding: 2px 8px; font-size: 11px; border-radius: 2px; color: var(--wire-dark); }
+  .section-title { font-size: 16px; font-weight: bold; border-bottom: 2px solid var(--wire-dark); padding-bottom: 6px; margin-bottom: 14px; letter-spacing: 1px; text-transform: uppercase; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row-between { display: flex; justify-content: space-between; align-items: center; }
+  .text-sm { font-size: 12px; color: var(--wire-muted); }
+  .text-bold { font-weight: bold; }
+  .text-price { font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+  .text-right { text-align: right; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .star-row { display: flex; gap: 6px; font-size: 26px; cursor: pointer; margin: 10px 0; justify-content: center; }
+  .star { color: var(--wire-light); transition: color 0.1s; }
+  .star.selected { color: var(--wire-dark); }
+  .nav-bottom { display: flex; background: var(--wire-dark); border-top: 2px solid #000; }
+  .nav-item { flex: 1; padding: 12px 4px 8px; text-align: center; cursor: pointer; color: #aaa; font-size: 10px; border: none; background: none; font-family: inherit; }
+  .nav-item.active { color: #fff; border-top: 3px solid #fff; }
+  .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+  .steps { display: flex; gap: 4px; margin-bottom: 16px; }
+  .step { flex: 1; height: 6px; background: var(--wire-light); border-radius: 2px; }
+  .step.done { background: var(--wire-dark); }
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .chip { border: 1px solid var(--wire-border); padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+  .chip.active { background: var(--wire-dark); color: #fff; border-color: var(--wire-dark); }
+  .qty-ctrl { display: flex; align-items: center; gap: 12px; }
+  .qty-btn { width: 32px; height: 32px; border: 2px solid var(--wire-border); background: #fff; font-size: 18px; cursor: pointer; font-family: inherit; border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .report-bar { height: 20px; background: var(--wire-dark); border-radius: 2px; margin-bottom: 6px; }
+
+  /* SPLASH */
+  .splash-logo { font-size: 48px; font-weight: bold; letter-spacing: 6px; text-align: center; margin: 60px 0 8px; }
+  .splash-sub { text-align: center; color: var(--wire-muted); font-size: 14px; margin-bottom: 60px; letter-spacing: 2px; }
+  .splash-img { margin: 0 auto 40px; }
+
+  /* ANNOTATION */
+  .annotation { background: #fffde7; border: 1px dashed #bbb; border-radius: 3px; padding: 6px 10px; font-size: 11px; color: #666; margin-top: 8px; font-style: italic; }
+
+  /* PRODUCT CARD GRID */
+  .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .product-card { background: var(--wire-surface); border: 2px solid var(--wire-border); border-radius: 4px; overflow: hidden; cursor: pointer; }
+  .product-card-img { height: 90px; background: var(--wire-placeholder); border-bottom: 2px dashed var(--wire-border); display: flex; align-items: center; justify-content: center; color: var(--wire-muted); font-size: 11px; }
+  .product-card-body { padding: 8px; }
+  .product-name { font-size: 13px; font-weight: bold; }
+  .product-price { font-size: 13px; color: var(--wire-accent); }
+  .product-producer { font-size: 11px; color: var(--wire-muted); }
+
+  /* SCREEN LABEL */
+  .screen-label { font-size: 10px; color: var(--wire-muted); text-align: center; padding: 4px; border-bottom: 1px dashed var(--wire-light); letter-spacing: 2px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== S1: SPLASH ===== -->
+<div class="screen active" id="s-splash">
+  <div class="screen-label">Pantalla 1 – Inicio / Splash</div>
+  <div class="content" style="display:flex;flex-direction:column;justify-content:center;flex:1;">
+    <div class="splash-logo">AGROLINK</div>
+    <div class="splash-sub">PLATAFORMA AGROPECUARIA LOCAL · CUMARAL, META</div>
+    <div class="splash-img">
+      <div class="wire-img" style="width:180px;height:180px;margin:auto;border-radius:50%;">[ Logo / Ilustración<br>Campo ]</div>
+    </div>
+    <button class="wire-btn" onclick="go('s-login')">INGRESAR</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-register')">REGISTRARME</button>
+    <div class="annotation">Prototipo académico de baja fidelidad. Los productos, usuarios, precios, pedidos y métricas son datos ficticios. La navegación es demostrativa; no se procesan pagos.</div>
+  </div>
+</div>
+
+<!-- ===== S2: LOGIN ===== -->
+<div class="screen" id="s-login">
+  <div class="screen-label">Pantalla 2 – Inicio de Sesión</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-splash')">← Volver</button>
+    <span class="topbar-logo">AGROLINK</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="section-title">Iniciar Sesión</div>
+    <div class="wire-label">Correo electrónico</div>
+    <input class="wire-input" placeholder="usuario@correo.com" type="email">
+    <div class="wire-label">Contraseña</div>
+    <input class="wire-input" placeholder="••••••••" type="password">
+    <hr class="wire-divider">
+    <button class="wire-btn" onclick="go('s-home')">ENTRAR COMO COMPRADOR (DEMO)</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-producer-home')">ENTRAR COMO PRODUCTOR (DEMO)</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-register')">¿No tienes cuenta? Regístrate</button>
+    <div class="annotation">Acceso simulado para explorar el prototipo. La autenticación, las credenciales y los permisos reales no están implementados en esta maqueta.</div>
+  </div>
+</div>
+
+<!-- ===== S3: REGISTRO ===== -->
+<div class="screen" id="s-register">
+  <div class="screen-label">Pantalla 3 – Registro de Usuario</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-splash')">← Volver</button>
+    <span class="topbar-logo">AGROLINK</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="section-title">Crear Cuenta</div>
+    <div class="steps">
+      <div class="step done"></div><div class="step done"></div><div class="step"></div>
+    </div>
+    <div class="wire-label">Tipo de usuario</div>
+    <div class="chip-row mb-12">
+      <div class="chip active" id="chip-prod" onclick="selectChip('chip-prod','chip-comp')">🌾 Productor</div>
+      <div class="chip" id="chip-comp" onclick="selectChip('chip-comp','chip-prod')">🛒 Comprador</div>
+    </div>
+    <div class="wire-label">Nombre completo</div>
+    <input class="wire-input" placeholder="Ej: Carlos Rodríguez">
+    <div class="wire-label">Correo electrónico</div>
+    <input class="wire-input" placeholder="correo@ejemplo.com">
+    <div class="wire-label">Contraseña</div>
+    <input class="wire-input" placeholder="Mínimo 8 caracteres" type="password">
+    <div class="wire-label">Región / Municipio</div>
+    <input class="wire-input" placeholder="Ej: Cumaral, Meta" value="Cumaral, Meta">
+    <hr class="wire-divider">
+    <button class="wire-btn" id="btn-register-type" onclick="registerRoute()">CREAR CUENTA</button>
+    <div class="annotation">Flujo visual de registro. Las validaciones y el almacenamiento real quedan pendientes de implementación.</div>
+  </div>
+</div>
+
+<!-- ===== S4: HOME / CATÁLOGO ===== -->
+<div class="screen" id="s-home">
+  <div class="screen-label">Pantalla 4 – Catálogo de Productos</div>
+  <div class="topbar">
+    <span class="topbar-logo" style="font-size:15px;">AGROLINK</span>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <span style="font-size:11px;color:#aaa;">Vista de comprador (demo)</span>
+      <span class="topbar-icon" onclick="go('s-cart')">🛒<span class="badge">2</span></span>
+    </div>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <input class="wire-input" placeholder="🔍  Buscar productos..." style="margin-top:4px;">
+    <div class="chip-row">
+      <div class="chip active">Todos</div>
+      <div class="chip">Frutas</div>
+      <div class="chip">Verduras</div>
+      <div class="chip">Lácteos</div>
+      <div class="chip">Carnes</div>
+    </div>
+    <div class="section-title">Productos Disponibles</div>
+    <div class="product-grid">
+      <div class="product-card" onclick="go('s-product')">
+        <div class="product-card-img">[ Foto Producto ]</div>
+        <div class="product-card-body">
+          <div class="product-name">Plátano Hartón</div>
+          <div class="product-price">$3.500/kg</div>
+          <div class="product-producer">🌾 Finca La Esperanza · Cumaral</div>
+        </div>
+      </div>
+      <div class="product-card" onclick="go('s-product')">
+        <div class="product-card-img">[ Foto Producto ]</div>
+        <div class="product-card-body">
+          <div class="product-name">Yuca Fresca</div>
+          <div class="product-price">$2.800/kg</div>
+          <div class="product-producer">🌾 Prod. Don José</div>
+        </div>
+      </div>
+      <div class="product-card" onclick="go('s-product')">
+        <div class="product-card-img">[ Foto Producto ]</div>
+        <div class="product-card-body">
+          <div class="product-name">Tomate Chonto</div>
+          <div class="product-price">$4.200/kg</div>
+          <div class="product-producer">🌾 Productor local · Cumaral</div>
+        </div>
+      </div>
+      <div class="product-card" onclick="go('s-product')">
+        <div class="product-card-img">[ Foto Producto ]</div>
+        <div class="product-card-body">
+          <div class="product-name">Queso Campesino</div>
+          <div class="product-price">$18.000/und</div>
+          <div class="product-producer">🌾 Productor local · Cumaral</div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">Catálogo de ejemplo; productos, precios e imágenes son ilustrativos.</div>
+  </div>
+  <div class="nav-bottom">
+    <button class="nav-item active" onclick="go('s-home')"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item" onclick="go('s-cart')"><span class="nav-icon">🛒</span>Carrito</button>
+    <button class="nav-item" onclick="go('s-orders')"><span class="nav-icon">📦</span>Pedidos</button>
+  </div>
+</div>
+
+<!-- ===== S5: DETALLE PRODUCTO ===== -->
+<div class="screen" id="s-product">
+  <div class="screen-label">Pantalla 5 – Detalle del Producto</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-home')">← Catálogo</button>
+    <span class="topbar-logo" style="font-size:14px;">Detalle</span>
+    <span class="topbar-icon" onclick="go('s-cart')">🛒<span class="badge">2</span></span>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <div class="wire-img" style="height:200px;margin-bottom:16px;">[ Foto Principal del Producto ]</div>
+    <div class="row-between mb-8">
+      <span class="text-bold" style="font-size:18px;">Plátano Hartón</span>
+      <span class="wire-tag">Frutas</span>
+    </div>
+    <div class="text-price mb-8">$3.500 / kg</div>
+    <div class="text-sm mb-12">⭐ Calificación de ejemplo · 🌾 Finca La Esperanza</div>
+    <hr class="wire-divider">
+    <div class="wire-label">Descripción</div>
+    <p class="mb-12 text-sm" style="line-height:1.6;">Producto de ejemplo para mostrar la ficha comercial. La descripción y las características deberán ser registradas por el productor y no se consideran verificadas.</p>
+    <div class="wire-label">Productor</div>
+    <div class="wire-card mb-12">
+      <div class="row">
+        <div class="wire-img" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;">📷</div>
+        <div style="margin-left:10px;">
+          <div class="text-bold">Don Alirio González</div>
+          <div class="text-sm">📍 Cumaral, Meta (dato ficticio)</div>
+        </div>
+      </div>
+    </div>
+    <div class="wire-label">Cantidad (kg)</div>
+    <div class="qty-ctrl mb-16">
+      <button class="qty-btn">−</button>
+      <span style="font-size:20px;font-weight:bold;">2</span>
+      <button class="qty-btn">+</button>
+      <span class="text-sm">Disponible: 50 kg</span>
+    </div>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-contact')">VER MEDIO DE CONTACTO</button>
+    <button class="wire-btn" onclick="go('s-cart')">🛒 AGREGAR AL CARRITO</button>
+    <div class="annotation">La cantidad solicitada debe ser menor o igual a la disponibilidad registrada. Esta validación se debe implementar y probar en la versión funcional.</div>
+    <div class="annotation">Flujo visual de agregar al carrito; la persistencia y la validación de disponibilidad deben implementarse.</div>
+  </div>
+</div>
+
+<!-- ===== S6: CARRITO (SDT1) ===== -->
+<div class="screen" id="s-cart">
+  <div class="screen-label">Pantalla 6 – Carrito de Compras [SDT1]</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-home')">← Seguir comprando</button>
+    <span class="topbar-logo" style="font-size:14px;">Mi Carrito</span>
+    <span></span>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <div class="section-title">Productos en el carrito</div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <div class="row">
+          <div class="wire-img" style="width:50px;height:50px;flex-shrink:0;">🍌</div>
+          <div style="margin-left:10px;">
+            <div class="text-bold">Plátano Hartón</div>
+            <div class="text-sm">🌾 Finca La Esperanza</div>
+          </div>
+        </div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:#999;">✕</button>
+      </div>
+      <div class="row-between">
+        <div class="qty-ctrl">
+          <button class="qty-btn">−</button>
+          <span style="font-weight:bold;">2 kg</span>
+          <button class="qty-btn">+</button>
+        </div>
+        <span class="text-bold">$7.000</span>
+      </div>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <div class="row">
+          <div class="wire-img" style="width:50px;height:50px;flex-shrink:0;">🧀</div>
+          <div style="margin-left:10px;">
+            <div class="text-bold">Queso Campesino</div>
+            <div class="text-sm">🌾 Lácteos Orinoco</div>
+          </div>
+        </div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:#999;">✕</button>
+      </div>
+      <div class="row-between">
+        <div class="qty-ctrl">
+          <button class="qty-btn">−</button>
+          <span style="font-weight:bold;">1 und</span>
+          <button class="qty-btn">+</button>
+        </div>
+        <span class="text-bold">$18.000</span>
+      </div>
+    </div>
+
+    <hr class="wire-divider">
+    <div class="wire-card" style="background:#f9f9f9;">
+      <div class="row-between mb-8">
+        <span class="text-sm">Subtotal (2 productos)</span>
+        <span>$25.000</span>
+      </div>
+      <div class="row-between mb-8">
+        <span class="text-sm">Envío estimado</span>
+        <span class="text-sm">A convenir</span>
+      </div>
+      <hr class="wire-divider" style="margin:8px 0;">
+      <div class="row-between">
+        <span class="text-bold" style="font-size:16px;">TOTAL</span>
+        <span class="text-price">$25.000</span>
+      </div>
+    </div>
+
+    <button class="wire-btn" onclick="go('s-checkout')">CONFIRMAR PEDIDO →</button>
+    <div class="annotation">Flujo visual del carrito. La modificación de cantidades, el cálculo del total y la validación de stock deben implementarse.</div>
+  </div>
+  <div class="nav-bottom">
+    <button class="nav-item" onclick="go('s-home')"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item active"><span class="nav-icon">🛒</span>Carrito</button>
+    <button class="nav-item" onclick="go('s-orders')"><span class="nav-icon">📦</span>Pedidos</button>
+  </div>
+</div>
+
+<!-- ===== S7: CONFIRMAR PEDIDO (SDT1) ===== -->
+<div class="screen" id="s-checkout">
+  <div class="screen-label">Pantalla 7 – Confirmación de Pedido [SDT1]</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-cart')">← Carrito</button>
+    <span class="topbar-logo" style="font-size:13px;">Confirmar Pedido</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="steps">
+      <div class="step done"></div><div class="step done"></div><div class="step"></div>
+    </div>
+    <div class="section-title">Datos de entrega</div>
+    <div class="wire-label">Dirección de entrega</div>
+    <input class="wire-input" placeholder="Vereda, dirección o punto de encuentro (a convenir)">
+    <div class="wire-label">Municipio</div>
+    <input class="wire-input" placeholder="Cumaral, Meta" value="Cumaral, Meta">
+    <div class="wire-label">Teléfono de contacto</div>
+    <input class="wire-input" placeholder="311 000 0000">
+    <div class="wire-label">Nota para el productor (Opcional)</div>
+    <input class="wire-input" placeholder="Ej: Entregar antes del mediodía">
+    <hr class="wire-divider">
+    <div class="section-title">Resumen del pedido</div>
+    <div class="wire-card">
+      <div class="row-between mb-8"><span class="text-sm">Plátano Hartón – 2 kg</span><span>$7.000</span></div>
+      <div class="row-between mb-8"><span class="text-sm">Queso Campesino – 1 und</span><span>$18.000</span></div>
+      <hr class="wire-divider" style="margin:8px 0;">
+      <div class="row-between"><span class="text-bold">TOTAL</span><span class="text-price">$25.000</span></div>
+    </div>
+    <div class="wire-label">Condiciones de entrega y pago</div>
+    <div class="wire-card mb-16">
+      <p class="text-sm" style="line-height:1.6;">El pedido registra una solicitud, no una transacción financiera. El comprador y el productor acuerdan directamente la disponibilidad final, la entrega y las condiciones de pago por el medio de contacto definido.</p>
+    </div>
+    <button class="wire-btn" onclick="go('s-order-success')">✅ REALIZAR PEDIDO</button>
+    <div class="annotation">Pantalla de confirmación demostrativa. El registro persistente del pedido debe implementarse y probarse.</div>
+  </div>
+</div>
+
+<!-- ===== S8: PEDIDO EXITOSO (SDT1) ===== -->
+<div class="screen" id="s-order-success">
+  <div class="screen-label">Pantalla 8 – Pedido Confirmado [SDT1]</div>
+  <div class="topbar">
+    <span></span>
+    <span class="topbar-logo">AGROLINK</span>
+    <span></span>
+  </div>
+  <div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding-top:40px;">
+    <div style="font-size:72px;margin-bottom:16px;">✅</div>
+    <div class="section-title" style="text-align:center;border-bottom:none;">¡Pedido Realizado!</div>
+    <p class="text-sm mb-16" style="max-width:280px;margin:0 auto 16px;line-height:1.7;">Tu solicitud <strong>#PED-0047</strong> quedó registrada en este prototipo. Contacta al productor para confirmar disponibilidad, entrega y condiciones comerciales.</p>
+    <div class="wire-card" style="width:100%;text-align:left;">
+      <div class="row-between mb-8"><span class="text-sm">Número de pedido</span><span class="text-bold">#PED-0047</span></div>
+      <div class="row-between mb-8"><span class="text-sm">Fecha</span><span>12/04/2026</span></div>
+      <div class="row-between mb-8"><span class="text-sm">Estado</span><span class="wire-tag">En preparación</span></div>
+      <div class="row-between"><span class="text-sm">Total</span><span class="text-price">$25.000</span></div>
+    </div>
+    <button class="wire-btn mb-8" onclick="go('s-orders')">VER MIS PEDIDOS</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-home')">SEGUIR COMPRANDO</button>
+    <div class="annotation">✏️ Estado del pedido visible. El comprador recibe confirmación. [SDT1]</div>
+  </div>
+</div>
+
+<!-- ===== S9: HISTORIAL PEDIDOS (SDT1) ===== -->
+<div class="screen" id="s-orders">
+  <div class="screen-label">Pantalla 9 – Historial de Pedidos [SDT1]</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-home')">← Inicio</button>
+    <span class="topbar-logo" style="font-size:14px;">Mis Pedidos</span>
+    <span></span>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <div class="section-title">Historial de compras</div>
+
+    <div class="wire-card" style="cursor:pointer;" onclick="go('s-rating')">
+      <div class="row-between mb-8">
+        <span class="text-bold">#PED-0047</span>
+        <span class="wire-tag" style="background:#d4edda;border-color:#666;">Entregado</span>
+      </div>
+      <div class="text-sm mb-8">📅 12/04/2026 · 💰 $25.000 (ejemplo)</div>
+      <div class="text-sm mb-12">🥬 Plátano Hartón, Queso Campesino</div>
+      <button class="wire-btn wire-btn-outline wire-btn-sm" onclick="go('s-rating')">⭐ Calificar compra</button>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <span class="text-bold">#PED-0038</span>
+        <span class="wire-tag" style="background:#fff3cd;border-color:#666;">En preparación</span>
+      </div>
+      <div class="text-sm mb-8">📅 08/04/2026 · 💰 $12.000</div>
+      <div class="text-sm">🥦 Yuca Fresca, Tomate Chonto</div>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <span class="text-bold">#PED-0031</span>
+        <span class="wire-tag">Calificado ⭐⭐⭐⭐⭐</span>
+      </div>
+      <div class="text-sm mb-8">📅 01/04/2026 · 💰 $34.500</div>
+      <div class="text-sm">🍌 Plátano Hartón, Aguacate</div>
+    </div>
+
+    <div class="annotation">✏️ El comprador puede ver estado de pedidos y calificar los entregados. [SDT1]</div>
+  </div>
+  <div class="nav-bottom">
+    <button class="nav-item" onclick="go('s-home')"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item" onclick="go('s-cart')"><span class="nav-icon">🛒</span>Carrito</button>
+    <button class="nav-item active"><span class="nav-icon">📦</span>Pedidos</button>
+  </div>
+</div>
+
+<!-- ===== S10: CALIFICACIÓN (SDT1) ===== -->
+<div class="screen" id="s-rating">
+  <div class="screen-label">Pantalla 10 – Calificación del Servicio [SDT1]</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-orders')">← Mis Pedidos</button>
+    <span class="topbar-logo" style="font-size:12px;">Calificar Compra</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="section-title">Calificar Pedido #PED-0047</div>
+
+    <div class="wire-card mb-16">
+      <div class="row">
+        <div class="wire-img" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;">📷</div>
+        <div style="margin-left:10px;">
+          <div class="text-bold">Finca La Esperanza</div>
+          <div class="text-sm">Don Alirio González · Cumaral, Meta (dato ficticio)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wire-label" style="text-align:center;">¿Cómo fue tu experiencia?</div>
+    <div class="star-row" id="stars">
+      <span class="star" onclick="rateStar(1)">★</span>
+      <span class="star" onclick="rateStar(2)">★</span>
+      <span class="star" onclick="rateStar(3)">★</span>
+      <span class="star" onclick="rateStar(4)">★</span>
+      <span class="star" onclick="rateStar(5)">★</span>
+    </div>
+    <p style="text-align:center;font-size:12px;color:#999;margin-bottom:16px;" id="star-label">Toca las estrellas para calificar</p>
+
+    <div class="wire-label">Aspectos a calificar</div>
+    <div class="wire-card mb-12">
+      <div class="row-between mb-8"><span class="text-sm">Calidad del producto</span><span>★★★★★</span></div>
+      <div class="row-between mb-8"><span class="text-sm">Tiempo de entrega</span><span>★★★★☆</span></div>
+      <div class="row-between"><span class="text-sm">Atención del productor</span><span>★★★★★</span></div>
+    </div>
+
+    <div class="wire-label">Comentario (opcional)</div>
+    <textarea class="wire-input" rows="4" placeholder="Ej: Los productos llegaron frescos y en buen estado. El productor fue muy amable." style="resize:none;margin-bottom:16px;"></textarea>
+
+    <button class="wire-btn" onclick="go('s-rating-success')">ENVIAR CALIFICACIÓN</button>
+    <div class="annotation">Interfaz demostrativa de calificación; el registro y la consulta real deben implementarse.</div>
+  </div>
+</div>
+
+<!-- ===== S11: CALIFICACIÓN EXITOSA ===== -->
+<div class="screen" id="s-rating-success">
+  <div class="screen-label">Pantalla 11 – Calificación Enviada [SDT1]</div>
+  <div class="topbar"><span></span><span class="topbar-logo">AGROLINK</span><span></span></div>
+  <div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding-top:40px;">
+    <div style="font-size:72px;margin-bottom:12px;">⭐</div>
+    <div class="section-title" style="text-align:center;border-bottom:none;">¡Gracias por calificar!</div>
+    <p class="text-sm mb-16" style="max-width:280px;margin:0 auto 16px;line-height:1.7;">Tu calificación ha sido publicada en el perfil de <strong>Finca La Esperanza</strong>. Esto ayuda a otros compradores.</p>
+    <div class="wire-card" style="width:100%;">
+      <div class="row-between mb-8"><span class="text-sm">Productor</span><span>Finca La Esperanza</span></div>
+      <div class="row-between mb-8"><span class="text-sm">Tu calificación</span><span>★★★★★ (5/5)</span></div>
+      <div class="row-between"><span class="text-sm">Fecha</span><span>12/04/2026</span></div>
+    </div>
+    <button class="wire-btn" style="margin-top:16px;" onclick="go('s-home')">VOLVER AL INICIO</button>
+    <div class="annotation">✏️ Confirmación de calificación publicada. Visible en perfil del productor. [SDT1]</div>
+  </div>
+</div>
+
+<!-- ===== S12: REPORTES (SDT1) ===== -->
+<div class="screen" id="s-reports">
+  <div class="screen-label">Pantalla 12 – Reportes del productor (datos de ejemplo)</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-home')">← Inicio</button>
+    <span class="topbar-logo" style="font-size:13px;">Reportes</span>
+    <span></span>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <div class="chip-row mb-12">
+      <div class="chip active">Mis ventas</div>
+      <div class="chip">Productos</div>
+      <div class="chip">Calificaciones</div>
+    </div>
+
+    <div class="section-title">Resumen demostrativo del mes</div>
+    <div class="product-grid" style="gap:8px;margin-bottom:16px;">
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">12</div>
+        <div class="text-sm">Pedidos<br>este mes</div>
+      </div>
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">$284K</div>
+        <div class="text-sm">Ingresos<br>totales</div>
+      </div>
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">4.8⭐</div>
+        <div class="text-sm">Calificación<br>promedio</div>
+      </div>
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">5</div>
+        <div class="text-sm">Productos<br>activos</div>
+      </div>
+    </div>
+
+    <div class="section-title">Productos más vendidos</div>
+    <div class="wire-card mb-16">
+      <div class="mb-8">
+        <div class="row-between mb-8"><span class="text-sm">Plátano Hartón</span><span class="text-sm">48 kg</span></div>
+        <div class="report-bar" style="width:90%;"></div>
+      </div>
+      <div class="mb-8">
+        <div class="row-between mb-8"><span class="text-sm">Queso Campesino</span><span class="text-sm">23 und</span></div>
+        <div class="report-bar" style="width:65%;"></div>
+      </div>
+      <div class="mb-8">
+        <div class="row-between mb-8"><span class="text-sm">Yuca Fresca</span><span class="text-sm">30 kg</span></div>
+        <div class="report-bar" style="width:75%;"></div>
+      </div>
+      <div>
+        <div class="row-between mb-8"><span class="text-sm">Tomate Chonto</span><span class="text-sm">15 kg</span></div>
+        <div class="report-bar" style="width:40%;"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Ingresos por semana</div>
+    <div class="wire-card mb-12">
+      <div style="display:flex;align-items:flex-end;gap:8px;height:80px;margin-bottom:8px;">
+        <div style="flex:1;background:var(--wire-dark);border-radius:2px 2px 0 0;" title="S1" data-h="40%"></div>
+        <div style="flex:1;background:var(--wire-dark);border-radius:2px 2px 0 0;" title="S2" data-h="65%"></div>
+        <div style="flex:1;background:var(--wire-dark);border-radius:2px 2px 0 0;" title="S3" data-h="55%"></div>
+        <div style="flex:1;background:var(--wire-dark);border-radius:2px 2px 0 0;" title="S4" data-h="80%"></div>
+      </div>
+      <div style="display:flex;gap:8px;text-align:center;">
+        <span style="flex:1;font-size:10px;color:#999;">Sem 1</span>
+        <span style="flex:1;font-size:10px;color:#999;">Sem 2</span>
+        <span style="flex:1;font-size:10px;color:#999;">Sem 3</span>
+        <span style="flex:1;font-size:10px;color:#999;">Sem 4</span>
+      </div>
+    </div>
+
+    <button class="wire-btn wire-btn-outline" style="margin-bottom:8px;">📥 EXPORTAR REPORTE (PDF)</button>
+    <div class="annotation">Los indicadores son datos ficticios para representar el diseño. En la versión funcional se calcularán a partir de pedidos y productos realmente registrados; no demuestran ventas reales.</div>
+  </div>
+  <div class="nav-bottom">
+    <button class="nav-item" onclick="go('s-home')"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item" onclick="go('s-cart')"><span class="nav-icon">🛒</span>Carrito</button>
+    <button class="nav-item" onclick="go('s-orders')"><span class="nav-icon">📦</span>Pedidos</button>
+    <button class="nav-item active"><span class="nav-icon">📊</span>Reportes</button>
+  </div>
+</div>
+
+
+<!-- ===== S13: PANEL PRODUCTOR ===== -->
+<div class="screen" id="s-producer-home">
+  <div class="screen-label">Pantalla 13 – Panel del Productor</div>
+  <div class="topbar">
+    <span class="topbar-logo" style="font-size:14px;">AGROLINK</span>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span style="font-size:11px;color:#aaa;">Productor</span>
+      <span class="topbar-icon" onclick="go('s-notifications')">🔔<span class="badge">3</span></span>
+    </div>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <div class="wire-card" style="background:#333;color:#fff;margin-bottom:16px;">
+      <div class="row" style="margin-bottom:8px;">
+        <div class="wire-img" style="width:50px;height:50px;border-radius:50%;flex-shrink:0;background:#555;border-color:#777;color:#ccc;">📷</div>
+        <div style="margin-left:12px;">
+          <div style="font-weight:bold;font-size:15px;">Productor de ejemplo</div>
+          <div style="font-size:11px;color:#aaa;">🌾 Finca La Esperanza · Cumaral, Meta</div>
+          <div style="font-size:11px;color:#aaa;">⭐ 4.8 · 23 reseñas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Resumen rápido</div>
+    <div class="product-grid" style="gap:8px;margin-bottom:16px;">
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">5</div>
+        <div class="text-sm">Productos<br>publicados</div>
+      </div>
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">3</div>
+        <div class="text-sm">Pedidos<br>pendientes</div>
+      </div>
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">$284K</div>
+        <div class="text-sm">Ventas<br>del mes</div>
+      </div>
+      <div class="wire-card" style="text-align:center;padding:14px;">
+        <div style="font-size:24px;font-weight:bold;">4.8⭐</div>
+        <div class="text-sm">Calificación<br>promedio</div>
+      </div>
+    </div>
+
+    <div class="section-title">Acciones rápidas</div>
+    <button class="wire-btn" onclick="go('s-add-product')">➕ PUBLICAR NUEVO PRODUCTO</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-my-products')">📦 VER MIS PRODUCTOS</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-producer-orders')">📋 VER PEDIDOS RECIBIDOS</button>
+
+    <div class="annotation">✏️ Panel principal del productor. Acceso rápido a sus módulos de gestión.</div>
+  </div>
+  <div class="nav-bottom">
+    <button class="nav-item active"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item" onclick="go('s-my-products')"><span class="nav-icon">📦</span>Productos</button>
+    <button class="nav-item" onclick="go('s-producer-orders')"><span class="nav-icon">📋</span>Pedidos</button>
+    <button class="nav-item" onclick="go('s-reports')"><span class="nav-icon">📊</span>Reportes</button>
+  </div>
+</div>
+
+<!-- ===== S14: REGISTRO PERFIL PRODUCTOR ===== -->
+<div class="screen" id="s-register-producer">
+  <div class="screen-label">Pantalla 14 – Registro Perfil Productor</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-register')">← Registro</button>
+    <span class="topbar-logo" style="font-size:12px;">Perfil Productor</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="steps">
+      <div class="step done"></div><div class="step done"></div><div class="step done"></div>
+    </div>
+    <div class="section-title">Completa tu perfil como productor</div>
+
+    <div style="text-align:center;margin-bottom:16px;">
+      <div class="wire-img" style="width:90px;height:90px;border-radius:50%;margin:0 auto 8px;">📷</div>
+      <button class="wire-btn wire-btn-outline wire-btn-sm">📷 Subir foto de perfil</button>
+    </div>
+
+    <div class="wire-label">Nombre de la finca / negocio</div>
+    <input class="wire-input" placeholder="Ej: Finca La Esperanza">
+
+    <div class="wire-label">Tipo de producción</div>
+    <div class="chip-row mb-12">
+      <div class="chip active">🌿 Agrícola</div>
+      <div class="chip">🐄 Pecuaria</div>
+      <div class="chip">🐟 Piscícola</div>
+      <div class="chip">🌿🐄 Mixta</div>
+    </div>
+
+    <div class="wire-label">Departamento</div>
+    <input class="wire-input" placeholder="Meta" value="Meta">
+
+    <div class="wire-label">Municipio</div>
+    <input class="wire-input" placeholder="Cumaral" value="Cumaral">
+
+    <div class="wire-label">Vereda / Zona rural</div>
+    <input class="wire-input" placeholder="Ej: Vereda El Palmar">
+
+    <div class="wire-label">Descripción de tu finca (opcional)</div>
+    <textarea class="wire-input" rows="3" placeholder="Ej: Producción familiar de plátano y yuca sin agroquímicos, con 20 años de experiencia..." style="resize:none;"></textarea>
+
+    <div class="wire-label">Teléfono de contacto</div>
+    <input class="wire-input" placeholder="311 000 0000">
+
+    <hr class="wire-divider">
+    <button class="wire-btn" onclick="go('s-producer-home')">GUARDAR Y CONTINUAR →</button>
+    <div class="annotation">Flujo visual del perfil; las validaciones y el almacenamiento real quedan pendientes de implementación.</div>
+  </div>
+</div>
+
+<!-- ===== S15: MIS PRODUCTOS ===== -->
+<div class="screen" id="s-my-products">
+  <div class="screen-label">Pantalla 15 – Gestión de Mis Productos</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-producer-home')">← Panel</button>
+    <span class="topbar-logo" style="font-size:13px;">Mis Productos</span>
+    <span class="topbar-icon" onclick="go('s-add-product')">➕</span>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <div class="section-title">Productos publicados (5)</div>
+
+    <div class="wire-card" style="cursor:pointer;" onclick="go('s-edit-product')">
+      <div class="row-between mb-8">
+        <div class="row">
+          <div class="wire-img" style="width:48px;height:48px;flex-shrink:0;">🍌</div>
+          <div style="margin-left:10px;">
+            <div class="text-bold">Plátano Hartón</div>
+            <div class="text-sm">$3.500/kg · Stock: 50 kg</div>
+          </div>
+        </div>
+        <span class="wire-tag" style="background:#d4edda;">Activo</span>
+      </div>
+      <div class="row" style="gap:8px;">
+        <button class="wire-btn wire-btn-outline wire-btn-sm" onclick="event.stopPropagation();go('s-edit-product')">✏️ Editar</button>
+        <button class="wire-btn wire-btn-outline wire-btn-sm" onclick="event.stopPropagation();">⏸ Pausar</button>
+        <button class="wire-btn wire-btn-outline wire-btn-sm" onclick="event.stopPropagation();" style="color:#c00;border-color:#c00;">🗑 Eliminar</button>
+      </div>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <div class="row">
+          <div class="wire-img" style="width:48px;height:48px;flex-shrink:0;">🥦</div>
+          <div style="margin-left:10px;">
+            <div class="text-bold">Yuca Fresca</div>
+            <div class="text-sm">$2.800/kg · Stock: 80 kg</div>
+          </div>
+        </div>
+        <span class="wire-tag" style="background:#d4edda;">Activo</span>
+      </div>
+      <div class="row" style="gap:8px;">
+        <button class="wire-btn wire-btn-outline wire-btn-sm">✏️ Editar</button>
+        <button class="wire-btn wire-btn-outline wire-btn-sm">⏸ Pausar</button>
+        <button class="wire-btn wire-btn-outline wire-btn-sm" style="color:#c00;border-color:#c00;">🗑 Eliminar</button>
+      </div>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <div class="row">
+          <div class="wire-img" style="width:48px;height:48px;flex-shrink:0;">🧀</div>
+          <div style="margin-left:10px;">
+            <div class="text-bold">Queso Campesino</div>
+            <div class="text-sm">$18.000/und · Stock: 10 und</div>
+          </div>
+        </div>
+        <span class="wire-tag" style="background:#fff3cd;">Pausado</span>
+      </div>
+      <div class="row" style="gap:8px;">
+        <button class="wire-btn wire-btn-outline wire-btn-sm">✏️ Editar</button>
+        <button class="wire-btn wire-btn-outline wire-btn-sm">▶ Activar</button>
+        <button class="wire-btn wire-btn-outline wire-btn-sm" style="color:#c00;border-color:#c00;">🗑 Eliminar</button>
+      </div>
+    </div>
+
+    <hr class="wire-divider">
+    <button class="wire-btn" onclick="go('s-add-product')">➕ PUBLICAR NUEVO PRODUCTO</button>
+    <div class="annotation">✏️ UAT: Productor puede ver, editar, pausar y eliminar sus productos publicados.</div>
+  </div>
+  <div class="nav-bottom">
+    <button class="nav-item" onclick="go('s-producer-home')"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item active"><span class="nav-icon">📦</span>Productos</button>
+    <button class="nav-item" onclick="go('s-producer-orders')"><span class="nav-icon">📋</span>Pedidos</button>
+    <button class="nav-item" onclick="go('s-reports')"><span class="nav-icon">📊</span>Reportes</button>
+  </div>
+</div>
+
+<!-- ===== S16: PUBLICAR PRODUCTO ===== -->
+<div class="screen" id="s-add-product">
+  <div class="screen-label">Pantalla 16 – Publicar Nuevo Producto</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-my-products')">← Mis Productos</button>
+    <span class="topbar-logo" style="font-size:12px;">Nuevo Producto</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="section-title">Información del producto</div>
+
+    <div style="text-align:center;margin-bottom:16px;">
+      <div class="wire-img" style="height:140px;border-radius:4px;margin-bottom:8px;">[ Foto del producto ]<br><span style="font-size:10px;">Toca para agregar imagen</span></div>
+      <button class="wire-btn wire-btn-outline wire-btn-sm">📷 Agregar foto</button>
+    </div>
+
+    <div class="wire-label">Nombre del producto *</div>
+    <input class="wire-input" placeholder="Ej: Plátano Hartón">
+
+    <div class="wire-label">Categoría *</div>
+    <div class="chip-row mb-12">
+      <div class="chip active">🌽 Frutas</div>
+      <div class="chip">🥦 Verduras</div>
+      <div class="chip">🥩 Carnes</div>
+      <div class="chip">🧀 Lácteos</div>
+      <div class="chip">🌾 Granos</div>
+      <div class="chip">🐟 Pesca</div>
+    </div>
+
+    <div class="wire-label">Precio de venta *</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input class="wire-input" placeholder="3500" style="flex:1;margin-bottom:0;">
+      <select class="wire-input" style="width:90px;margin-bottom:0;">
+        <option>/ kg</option>
+        <option>/ und</option>
+        <option>/ lb</option>
+        <option>/ litro</option>
+        <option>/ bulto</option>
+      </select>
+    </div>
+
+    <div class="wire-label">Cantidad disponible (stock) *</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input class="wire-input" placeholder="50" style="flex:1;margin-bottom:0;">
+      <select class="wire-input" style="width:90px;margin-bottom:0;">
+        <option>kg</option>
+        <option>und</option>
+        <option>lb</option>
+        <option>litros</option>
+        <option>bultos</option>
+      </select>
+    </div>
+
+    <div class="wire-label">Descripción del producto</div>
+    <textarea class="wire-input" rows="3" placeholder="Describe tu producto: características, proceso de cultivo, frescura, etc." style="resize:none;"></textarea>
+
+    <div class="wire-label">¿Tiene certificación orgánica?</div>
+    <div class="chip-row mb-12">
+      <div class="chip active">No</div>
+      <div class="chip">Sí</div>
+    </div>
+
+    <div class="wire-label">Fecha de disponibilidad</div>
+    <input class="wire-input" placeholder="Fecha estimada de disponibilidad" type="text">
+
+    <hr class="wire-divider">
+    <button class="wire-btn" onclick="go('s-product-success')">✅ PUBLICAR PRODUCTO</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-my-products')">Cancelar</button>
+    <div class="annotation">Flujo visual de publicación. La persistencia y las validaciones deberán implementarse y probarse.</div>
+  </div>
+</div>
+
+<!-- ===== S17: PRODUCTO PUBLICADO EXITOSAMENTE ===== -->
+<div class="screen" id="s-product-success">
+  <div class="screen-label">Pantalla 17 – Producto Publicado</div>
+  <div class="topbar"><span></span><span class="topbar-logo">AGROLINK</span><span></span></div>
+  <div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding-top:40px;">
+    <div style="font-size:72px;margin-bottom:12px;">🌾</div>
+    <div class="section-title" style="text-align:center;border-bottom:none;">¡Producto Publicado!</div>
+    <p class="text-sm mb-16" style="max-width:280px;margin:0 auto 16px;line-height:1.7;">Tu producto <strong>Plátano Hartón</strong> ya está visible en el catálogo de AGROLINK y disponible para los compradores.</p>
+    <div class="wire-card" style="width:100%;text-align:left;">
+      <div class="row-between mb-8"><span class="text-sm">Producto</span><span class="text-bold">Plátano Hartón</span></div>
+      <div class="row-between mb-8"><span class="text-sm">Precio</span><span>$3.500 / kg</span></div>
+      <div class="row-between mb-8"><span class="text-sm">Stock</span><span>50 kg disponibles</span></div>
+      <div class="row-between"><span class="text-sm">Estado</span><span class="wire-tag" style="background:#d4edda;">Activo</span></div>
+    </div>
+    <button class="wire-btn" style="margin-top:16px;" onclick="go('s-add-product')">➕ PUBLICAR OTRO PRODUCTO</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-my-products')">VER MIS PRODUCTOS</button>
+    <div class="annotation">✏️ UAT: Confirmación de publicación. Producto visible en catálogo inmediatamente.</div>
+  </div>
+</div>
+
+<!-- ===== S18: EDITAR PRODUCTO ===== -->
+<div class="screen" id="s-edit-product">
+  <div class="screen-label">Pantalla 18 – Editar Producto</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-my-products')">← Mis Productos</button>
+    <span class="topbar-logo" style="font-size:12px;">Editar Producto</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="section-title">Editar: Plátano Hartón</div>
+
+    <div style="text-align:center;margin-bottom:16px;">
+      <div class="wire-img" style="height:120px;border-radius:4px;margin-bottom:8px;">[ Foto actual del producto ]</div>
+      <button class="wire-btn wire-btn-outline wire-btn-sm">🔄 Cambiar foto</button>
+    </div>
+
+    <div class="wire-label">Nombre del producto</div>
+    <input class="wire-input" value="Plátano Hartón">
+
+    <div class="wire-label">Precio de venta</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input class="wire-input" value="3500" style="flex:1;margin-bottom:0;">
+      <select class="wire-input" style="width:90px;margin-bottom:0;"><option>/ kg</option></select>
+    </div>
+
+    <div class="wire-label">Actualizar stock disponible</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input class="wire-input" value="50" style="flex:1;margin-bottom:0;">
+      <select class="wire-input" style="width:90px;margin-bottom:0;"><option>kg</option></select>
+    </div>
+
+    <div class="wire-label">Descripción</div>
+    <textarea class="wire-input" rows="3" style="resize:none;">Plátano cosechado en la región Orinoquía, fresco y de primera calidad.</textarea>
+
+    <div class="wire-label">Estado del producto</div>
+    <div class="chip-row mb-16">
+      <div class="chip active">✅ Activo</div>
+      <div class="chip">⏸ Pausado</div>
+    </div>
+
+    <hr class="wire-divider">
+    <button class="wire-btn" onclick="go('s-my-products')">💾 GUARDAR CAMBIOS</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-my-products')">Cancelar</button>
+    <div class="annotation">Flujo visual de edición. La actualización real de precio y stock queda pendiente de implementación.</div>
+  </div>
+</div>
+
+<!-- ===== S19: PEDIDOS RECIBIDOS (PRODUCTOR) ===== -->
+<div class="screen" id="s-producer-orders">
+  <div class="screen-label">Pantalla 19 – Pedidos Recibidos (Productor)</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-producer-home')">← Panel</button>
+    <span class="topbar-logo" style="font-size:12px;">Pedidos Recibidos</span>
+    <span></span>
+  </div>
+  <div class="content" style="padding-bottom:80px;">
+    <div class="chip-row mb-12">
+      <div class="chip active">Todos (5)</div>
+      <div class="chip">Nuevos (2)</div>
+      <div class="chip">En proceso (1)</div>
+      <div class="chip">Entregados (2)</div>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <span class="text-bold">#PED-0047</span>
+        <span class="wire-tag" style="background:#cce5ff;">Nuevo</span>
+      </div>
+      <div class="text-sm mb-8">📅 12/04/2026 · 👤 Carlos Morales · 💰 $7.000</div>
+      <div class="text-sm mb-12">🍌 Plátano Hartón – 2 kg</div>
+      <div class="row" style="gap:8px;">
+        <button class="wire-btn wire-btn-outline wire-btn-sm">✅ Aceptar</button>
+        <button class="wire-btn wire-btn-outline wire-btn-sm" style="color:#c00;border-color:#c00;">✕ Rechazar</button>
+      </div>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <span class="text-bold">#PED-0045</span>
+        <span class="wire-tag" style="background:#fff3cd;">En preparación</span>
+      </div>
+      <div class="text-sm mb-8">📅 11/04/2026 · 👤 María López · 💰 $18.000</div>
+      <div class="text-sm mb-12">🧀 Queso Campesino – 1 und</div>
+      <div class="row" style="gap:8px;">
+        <button class="wire-btn wire-btn-outline wire-btn-sm">🚚 Marcar como enviado</button>
+      </div>
+    </div>
+
+    <div class="wire-card">
+      <div class="row-between mb-8">
+        <span class="text-bold">#PED-0038</span>
+        <span class="wire-tag" style="background:#d4edda;">Entregado</span>
+      </div>
+      <div class="text-sm mb-8">📅 08/04/2026 · 👤 Pedro Ruiz · 💰 $12.000</div>
+      <div class="text-sm">🥦 Yuca Fresca – 3 kg, Tomate Chonto – 1 kg</div>
+    </div>
+
+    <div class="annotation">Acciones de gestión de pedidos representadas visualmente; falta implementar y probar los cambios de estado.</div>
+  </div>
+  <div class="nav-bottom">
+    <button class="nav-item" onclick="go('s-producer-home')"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item" onclick="go('s-my-products')"><span class="nav-icon">📦</span>Productos</button>
+    <button class="nav-item active"><span class="nav-icon">📋</span>Pedidos</button>
+    <button class="nav-item" onclick="go('s-reports')"><span class="nav-icon">📊</span>Reportes</button>
+  </div>
+</div>
+
+<!-- ===== S20: NOTIFICACIONES ===== -->
+<div class="screen" id="s-notifications">
+  <div class="screen-label">Pantalla 20 – Notificaciones</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-producer-home')">← Panel</button>
+    <span class="topbar-logo" style="font-size:13px;">Notificaciones</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="section-title">Notificaciones recientes</div>
+
+    <div class="wire-card mb-8">
+      <div class="row" style="align-items:flex-start;">
+        <span style="font-size:24px;margin-right:12px;">🛒</span>
+        <div>
+          <div class="text-bold mb-8">Nuevo pedido recibido</div>
+          <div class="text-sm">Carlos Morales pidió 2 kg de <strong>Plátano Hartón</strong>. Revisa y acepta el pedido.</div>
+          <div class="text-sm" style="margin-top:4px;color:#aaa;">Hace 10 minutos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wire-card mb-8" style="background:#fffde7;">
+      <div class="row" style="align-items:flex-start;">
+        <span style="font-size:24px;margin-right:12px;">⭐</span>
+        <div>
+          <div class="text-bold mb-8">Nueva calificación</div>
+          <div class="text-sm">Pedro Ruiz te calificó con <strong>5 estrellas</strong>: "Productos frescos y excelente servicio"</div>
+          <div class="text-sm" style="margin-top:4px;color:#aaa;">Hace 2 horas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wire-card mb-8">
+      <div class="row" style="align-items:flex-start;">
+        <span style="font-size:24px;margin-right:12px;">⚠️</span>
+        <div>
+          <div class="text-bold mb-8">Stock bajo</div>
+          <div class="text-sm">Tu producto <strong>Queso Campesino</strong> tiene solo 2 unidades disponibles. Actualiza tu inventario.</div>
+          <div class="text-sm" style="margin-top:4px;color:#aaa;">Hace 1 día</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">✏️ El productor recibe notificaciones de nuevos pedidos, calificaciones y stock bajo.</div>
+  </div>
+</div>
+
+
+<!-- ===== S21: CONTACTO CON EL PRODUCTOR ===== -->
+<div class="screen" id="s-contact">
+  <div class="screen-label">Pantalla 21 – Contacto con el productor</div>
+  <div class="topbar">
+    <button class="topbar-back" onclick="go('s-product')">← Producto</button>
+    <span class="topbar-logo" style="font-size:13px;">Contacto</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="section-title">Contactar al productor</div>
+    <div class="wire-card">
+      <div class="text-bold mb-8">Finca La Esperanza</div>
+      <div class="text-sm mb-8">Ubicación de referencia: Cumaral, Meta</div>
+      <div class="text-sm mb-8">Producto consultado: Plátano Hartón</div>
+      <hr class="wire-divider">
+      <div class="wire-label">Canal de contacto</div>
+      <p class="text-sm" style="line-height:1.6;">En la versión funcional se mostrará el medio de contacto que el productor haya configurado en su perfil. No se presenta un teléfono real en esta maqueta.</p>
+      <div class="wire-tag" style="margin-top:10px;">Llamada o mensajería, según configuración</div>
+    </div>
+    <div class="annotation">Esta pantalla representa el acceso a los datos de contacto. No integra WhatsApp, llamadas ni servicios externos.</div>
+    <button class="wire-btn" onclick="go('s-product')">VOLVER AL PRODUCTO</button>
+    <button class="wire-btn wire-btn-outline" onclick="go('s-home')">VOLVER AL CATÁLOGO</button>
+  </div>
+</div>
+
+</div><!-- end .app -->
+
+<script>
+function registerRoute() {
+  var isProducer = document.getElementById('chip-prod').classList.contains('active');
+  if (isProducer) {
+    go('s-register-producer');
+  } else {
+    go('s-home');
+  }
+}
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function selectChip(activeId, otherId) {
+  document.getElementById(activeId).classList.add('active');
+  document.getElementById(otherId).classList.remove('active');
+}
+function rateStar(n) {
+  const stars = document.querySelectorAll('#stars .star');
+  const labels = ['','Muy malo','Regular','Bueno','Muy bueno','Excelente'];
+  stars.forEach((s,i) => { s.classList.toggle('selected', i < n); });
+  document.getElementById('star-label').textContent = labels[n] + ' (' + n + '/5)';
+}
+// Render bar chart heights
+document.querySelectorAll('[data-h]').forEach(el => {
+  el.style.height = el.getAttribute('data-h');
+});
+</script>
+</body>
+</html>
